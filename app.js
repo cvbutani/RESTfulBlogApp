@@ -1,14 +1,16 @@
-var express     = require("express"),
-    app         = express(),
-    bodyParser  = require("body-parser"),
-    mongoose    = require("mongoose");
+var express         = require("express"),
+    app             = express(),
+    methodOverride  = require("method-override"),
+    bodyParser      = require("body-parser"),
+    mongoose        = require("mongoose");
 
 mongoose.connect("mongodb://localhost/blog_app");
+
 //  APP CONFIGURATION
 app.set("view engine", "ejs");
-
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride("_method"));
 
 // MONGOOSE/MODEL CONFIGURATION
 var blogSchema = new mongoose.Schema({
@@ -26,12 +28,6 @@ var Blog = mongoose.model("Blog", blogSchema);
 
 //  RESTFUL ROUTES
 
-// Blog.create({
-//     title: "Nissan Altima 2019",
-//     image: "https://www.nissan.ca/content/dam/nissan/future-and-concept-vehicles/2019-altima/2019-nissan-all-new-altima-overview-scarlet-ember.jpg",
-//     body: "The all-new Altima features Intelligent All-Wheel Drive for a new kind of capability you never thought you could get in a sedan."
-// });
-
 app.get("/", function(req, res) {
     res.redirect("/blogs");
 });
@@ -39,7 +35,7 @@ app.get("/", function(req, res) {
 app.get("/blogs", function(req, res){
     Blog.find({}, function(err,blogs){
         if(err) {
-            console.log("ERROR !!")
+            console.log("ERROR !!");
         } else {
             res.render("index", {blogs:blogs});
         }
@@ -61,8 +57,41 @@ app.post("/blogs", function(req, res){
             res.redirect("/blogs");
         }
     });
-    
-})
+});
+
+//  SHOW ROUTE
+app.get("/blogs/:id",function(req, res) {
+    Blog.findById(req.params.id, function(err, foundBlog) {
+        if(err) {
+            res.redirect("/blogs");
+        } else {
+            res.render("show", {blog: foundBlog});
+        }
+    });
+});
+
+//  EDIT ROUTE
+app.get("/blogs/:id/edit", function(req, res) {
+    Blog.findById(req.params.id, function(err, foundBlog) {
+        if(err){
+            res.redirect("/blogs");
+        } else {
+            res.render("edit", {blog: foundBlog});
+        }
+    });
+});
+
+//  UPDATE ROUTE
+app.put("/blogs/:id", function(req,res) {
+   Blog.findByIdAndUpdate(req.params.id,req.body.blog, function(err, updatedBlog) {
+       if(err){
+           res.redirect("/blogs");
+       } else {
+           res.redirect("/blogs/" + req.params.id);
+       }
+   });
+});
+
 app.listen(process.env.PORT, process.env.IP, function() {
     console.log("Connected to server !!!");
 });
