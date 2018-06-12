@@ -27,7 +27,6 @@ var blogSchema = new mongoose.Schema({
 var Blog = mongoose.model("Blog", blogSchema);
 
 //  RESTFUL ROUTES
-
 app.get("/", function(req, res) {
     res.redirect("/blogs");
 });
@@ -41,12 +40,13 @@ app.get("/blogs", function(req, res){
         }
     });
 });
+
 //  NEW ROUTE
 app.get("/blogs/new", function(req, res) {
     res.render("new");
 });
-//  CREATE ROUTE
 
+//  CREATE ROUTE
 app.post("/blogs", function(req, res){
     //  CREATE BLOG
     Blog.create(req.body.blog, function(err, newBlog){
@@ -90,6 +90,20 @@ app.put("/blogs/:id", function(req,res) {
            res.redirect("/blogs/" + req.params.id);
        }
    });
+});
+
+//  DELETE ROUTE
+app.delete("/blogs/:id", function(req, res){
+   //   DELETE BLOG
+   Blog.findByIdAndRemove(req.params.id, function(err) {
+      if(err) {
+          res.redirect("/blogs");
+      } else {
+          res.redirect("/blogs");
+      }
+   });
+   //   REDIRECT SOMEWHERE
+   
 });
 
 app.listen(process.env.PORT, process.env.IP, function() {
