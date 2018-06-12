@@ -45,7 +45,24 @@ app.get("/blogs", function(req, res){
         }
     });
 });
+//  NEW ROUTE
+app.get("/blogs/new", function(req, res) {
+    res.render("new");
+});
+//  CREATE ROUTE
 
+app.post("/blogs", function(req, res){
+    //  CREATE BLOG
+    Blog.create(req.body.blog, function(err, newBlog){
+        if(err) {
+            res.render("new");
+        } else {
+            //  REDIRECT TO THE INDEX
+            res.redirect("/blogs");
+        }
+    });
+    
+})
 app.listen(process.env.PORT, process.env.IP, function() {
     console.log("Connected to server !!!");
 });
